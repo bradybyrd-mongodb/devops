@@ -208,17 +208,17 @@ def build_input_json(file_path, updaters = [:]) {
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
-	updaters.each{ k, v ->
+	for k in updaters{
 		jsn_path = k.split("\\.")
 		switch (jsn_path.size()){
 			case 1:
-				settings[jsn_path[0]] = v
+				settings[jsn_path[0]] = updaters[k]
 			case 2:
-				settings[jsn_path[0]][jsn_path[1]] = v
+				settings[jsn_path[0]][jsn_path[1]] = updaters[k]
 			case 3:
-				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]] = v
+				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]] = updaters[k]
 			case 4:
-				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = v
+				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = updaters[k]
 		}
 	}
 	def hnd = new File(new_file)
