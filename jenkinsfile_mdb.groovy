@@ -283,7 +283,7 @@ def get_settings(file_path, project = "none") {
 
 def parse_args(args){
 	res = [:]
-	items = args.split("\s")
+	items = args.split("\\s")
 	for (arg in items) {
 	  //logit arg
 	  pair = arg.split("=")
