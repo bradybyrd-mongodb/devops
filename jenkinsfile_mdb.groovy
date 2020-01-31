@@ -121,7 +121,7 @@ def not_found(){
     currentBuild.result = "UNSTABLE"
 }
 
-@NonCPS
+//@NonCPS
 def curl_get(url){
 	def curl = ""
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
