@@ -223,7 +223,7 @@ def yaml_test(){
 def config_test(){
     logit "Config is OK"
     logit "tst: ${config["templates"]["cluster_dev"]["name"]}"
-    stringify_json(config["templates"]["cluster_dev"])
+    logit "date: ${new Date().format( 'yyyyMMddss' )}"
 }
 
 def stringify_json(json_obj, subval = false){

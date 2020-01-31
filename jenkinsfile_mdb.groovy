@@ -130,11 +130,12 @@ def curl_get(url){
 }
 
 def curl_post(url, details = [:]){
-  def hnd = new File(base_path, "json_out.txt")
+	fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+  def hnd = new File(base_path + sep + "results", fname)
   def json_str = JsonOutput.toJson(details)
   def json_beauty = JsonOutput.prettyPrint(json_str)
   hnd.write(json_beauty)
-  def curl = "curl -i -u \"${api_public_key}:${api_private_key}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @json_out.txt"
+  def curl = "curl -i -u \"${api_public_key}:${api_private_key}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @results/${fname}"
   result = shell_execute(curl)
   display_result(curl, result)
   def json = json_resolver(result)
@@ -203,11 +204,18 @@ def atlas_cluster_info(){
 def atlas_user_add(){
     def obj = [:]
     obj = get_input_json(env.SettingsFile)
+		obj["roles"][0]["roleName"] = role
+		obj["username"] = username
+		obj["password"] = password
+		//file_path = "output_${new Date().format( 'yyyyMMddss' )}.json"
+		//def json_file_obj = new File( base_path + sep + "results" + sep + file_path )
+		//json_file_obj.write(JsonOutput.toJson(obj))
     def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
     result = curl_post(url, obj)
     print_rest(result)
 }
 
+@nonCPS
 def get_input_json(file_path) {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]
