@@ -226,6 +226,7 @@ def get_input_json(file_path) {
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
+	println "Settings: ${settings.toString()}"
 	return settings
 }
 
