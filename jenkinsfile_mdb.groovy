@@ -133,15 +133,10 @@ def curl_get(url){
   return json
 }
 
-def curl_post(url, details = [:]){
+def curl_post(url, file_path){
 	def curl = ""
-	def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
-  def hnd = new File(staging_path + sep + "results", fname)
-  def json_str = JsonOutput.toJson(details)
-  def json_beauty = JsonOutput.prettyPrint(json_str)
-  hnd.write(json_beauty)
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
-		curl = "curl -i -u \"${SAcred}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${staging_path}/results/${fname}"
+		curl = "curl -i -u \"${SAcred}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${file_path}"
   }
 	def result = shell_execute(curl)
   display_result(curl, result)
@@ -193,25 +188,44 @@ def atlas_cluster_info(){
 
 def atlas_user_add(){
     def obj = [:]
-    obj = get_input_json(env.TemplateFile)
 		def args = parse_args(env.RestParameters)
-		obj["roles"][0]["roleName"] = args["role"]
+		obj["roles.0.roleName"] = args["role"]
 		obj["username"] = args["username"]
 		obj["password"] = args["password"]
+		new_file = build_input_json(env.TemplateFile, obj)
 		def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
-    def result = curl_post(url, obj)
+    def result = curl_post(url, new_file)
 }
 
-//@NonCPS
-def get_input_json(file_path) {
-	def jsonSlurper = new JsonSlurper()
+@NonCPS
+def build_input_json(file_path, updaters = [:]) {
+	def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+	def new_file = staging_path + sep + "results", fname
+  def jsonSlurper = new JsonSlurper()
 	def settings = [:]
-	println "Input Settings Document: ${staging_path + sep + file_path}"
+	println "Input Template Document: ${staging_path + sep + file_path}"
 	def json_file_obj = new File( staging_path + sep + file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
-	return settings
+	updaters.each{ k, v ->
+		jsn_path = k.split("\\.")
+		switch (jsn_path.size()){
+			case 1:
+				settings[jsn_path[0]] = v
+			case 2:
+				settings[jsn_path[0]][jsn_path[1]] = v
+			case 3:
+				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]] = v
+			case 4:
+				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = v
+		}
+	}
+	def hnd = new File(new_file)
+  def json_str = JsonOutput.toJson(settings)
+  def json_beauty = JsonOutput.prettyPrint(json_str)
+  hnd.write(json_beauty)
+	return new_file
 }
 
 def config_test(){
