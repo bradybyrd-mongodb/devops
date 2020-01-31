@@ -200,7 +200,7 @@ def atlas_user_add(){
 @NonCPS
 def build_input_json(file_path, updaters = [:]) {
 	def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
-	def new_file = staging_path + sep + "results", fname
+	def new_file = staging_path + sep + "results" + sep + fname
   def jsonSlurper = new JsonSlurper()
 	def settings = [:]
 	println "Input Template Document: ${staging_path + sep + file_path}"
