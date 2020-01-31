@@ -218,7 +218,7 @@ def build_input_json(file_path, updaters = [:]) {
 			case 2:
 				settings[jsn_path[0]][jsn_path[1]] = k.value
 			case 3:
-				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]] = k.value
+				settings[jsn_path[0]][0][jsn_path[2]] = k.value
 			case 4:
 				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
 		}
