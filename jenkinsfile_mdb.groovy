@@ -265,9 +265,9 @@ def display_result(command, result){
 	echo "#------------------- Results --------------------------#"
 	echo "cmd> ${command}"
 	echo "#------------------- STDOUT ---------------------------#"
-	echo result["stdout"]
+	echo result["stdout"].toString()
 	echo "#------------------- STDERR ---------------------------#"
-	echo result["stderr"]
+	echo result["stderr"].toString()
 }
 
 def ensure_dir(pth){
