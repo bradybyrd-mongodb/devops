@@ -40,7 +40,7 @@ properties([
 	parameters([
 		//choice(name: 'Landscape', description: "Develop/Release to specify deployment target", choices: 'MP_Dev\nMP_Dev2,MP_Release'),
 		choice(name: 'AtlasAction', description: "Choose Atlas action", choices: 'atlas_org_info\natlas_cluster_info\natlas_user_add\natlas_cluster_add\nconfig_test'),
-    string(name: 'SettingsFile', description: "Enter path to json settings file (relative to repository root)", defaultValue: "settings/mysettings.json"),
+    string(name: 'TemplateFile', description: "Enter path to json settings file (relative to repository root)", defaultValue: "templates/user_add.json"),
 		string(name: 'RestParameters', description: "Enter overrides to json settings file (username=brady collection=movies)", defaultValue: "username=brady role=readAnyDatabase")
 	])
 ])
@@ -167,6 +167,7 @@ def json_resolver(result){
       jsonstr += line
     }
   }
+	if(jsonstr == ""){jsonstr = "{\"empty\" : true}"}
   //println "Deduced JSON:"
   //println jsonstr
   return(jsonSlurper.parseText(jsonstr))
@@ -289,10 +290,10 @@ def parse_args(args){
 	  pair = arg.split("=")
 	  if(pair.size() == 2) {
 	    res[pair[0].trim()] = pair[1].trim()
-	    println "  ${pair[0]} - ${pair[1]}"
+	    //println "  ${pair[0]} - ${pair[1]}"
 	  }else{
 	    res[arg] = ""
-	    println "  ${arg}"
+	    //println "  ${arg}"
 	  }
 	}
 	return res
