@@ -180,19 +180,21 @@ def json_resolver(result){
   return(jsonSlurper.parseText(jsonstr))
 }
 
-def print_rest(result){
+def print_rest(cmd, result){
   echo "Rest Result:"
   result.each{ k,v ->
       if(k == "results"){
-        echo "results => "
+				echo "#----------------------------------------------------------------#"
+				echo "#----------------------- Results --------------------------------#"
+				echo "# Running: ${cmd}"
         v.each{ item ->
           echo "#----------------------------------------------------------------#"
           item.each{ i,j ->
-            echo "${i} => ${j}"
+            echo "# ${i} => ${j}"
           }
         }
       }else{
-        echo "${k} => ${v}"
+        echo "# ${k} => ${v}"
       }
 
     }
