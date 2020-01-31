@@ -217,7 +217,7 @@ def atlas_user_add(){
     print_rest(result)
 }
 
-@nonCPS
+//@NonCPS
 def get_input_json(file_path) {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]
