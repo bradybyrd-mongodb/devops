@@ -221,8 +221,8 @@ def atlas_user_add(){
 def get_input_json(file_path) {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]
-	println "Input Settings Document: ${base_path + sep + file_path}"
-	def json_file_obj = new File( base_path + sep + file_path )
+	println "Input Settings Document: ${staging_path + sep + file_path}"
+	def json_file_obj = new File( staging_path + sep + file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
