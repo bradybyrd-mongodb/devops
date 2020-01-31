@@ -211,7 +211,7 @@ def build_input_json(file_path, updaters = [:]) {
 	for(k in updaters){
 		jsn_path = k.key.split("\\.")
 		jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
-		println("jsnpath: ${jsn_path}")
+		println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
 		switch (jsn_path.size()){
 			case 1:
 				settings[jsn_path[0]] = k.value
