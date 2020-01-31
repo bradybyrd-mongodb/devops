@@ -127,15 +127,15 @@ def curl_get(url){
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
 		curl = "curl -X GET -u \"${SAcred}\" --digest -i \"${url}\""
 	}
-	result = shell_execute(curl)
+	def result = shell_execute(curl)
   display_result(curl, result)
-  def json = json_resolver(result)
+  def json = [:] //json_resolver(result)
   return json
 }
 
 def curl_post(url, details = [:]){
 	def curl = ""
-	fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+	def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
   def hnd = new File(staging_path + sep + "results", fname)
   def json_str = JsonOutput.toJson(details)
   def json_beauty = JsonOutput.prettyPrint(json_str)
@@ -143,9 +143,9 @@ def curl_post(url, details = [:]){
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
 		curl = "curl -i -u \"${SAcred}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${staging_path}/results/${fname}"
   }
-	result = shell_execute(curl)
+	def result = shell_execute(curl)
   display_result(curl, result)
-  def json = json_resolver(result)
+  def json = [:] //json_resolver(result)
   return json
 }
 
@@ -181,50 +181,25 @@ def json_resolver(result){
   return(jsonSlurper.parseText(jsonstr))
 }
 
-def print_rest(result){
-  echo "Rest Result:"
-	echo "#----------------------------------------------------------------#"
-	echo "#----------------------- Results --------------------------------#"
-	result.each{ k,v ->
-      if(k == "results"){
-				v.each{ item ->
-          echo "#----------------------------------------------------------------#"
-          item.each{ i,j ->
-            echo "# ${i} => ${j}"
-          }
-        }
-      }else{
-        echo "# ${k} => ${v}"
-      }
-
-    }
-}
-
 def atlas_org_info(){
     def url = base_url + "?pretty=true"
     def result = curl_get(url)
-    //print_rest(result)
 }
 
 def atlas_cluster_info(){
     def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_get(url)
-    //print_rest(result)
 }
 
 def atlas_user_add(){
     def obj = [:]
     obj = get_input_json(env.TemplateFile)
-		args = parse_args(env.RestParameters)
+		def args = parse_args(env.RestParameters)
 		obj["roles"][0]["roleName"] = args["role"]
 		obj["username"] = args["username"]
 		obj["password"] = args["password"]
-		//file_path = "output_${new Date().format( 'yyyyMMddss' )}.json"
-		//def json_file_obj = new File( base_path + sep + "results" + sep + file_path )
-		//json_file_obj.write(JsonOutput.toJson(obj))
-    def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
+		def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
     def result = curl_post(url, obj)
-    //print_rest(result)
 }
 
 //@NonCPS
