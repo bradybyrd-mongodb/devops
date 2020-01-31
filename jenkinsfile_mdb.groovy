@@ -132,11 +132,11 @@ def curl_get(url){
 
 def curl_post(url, details = [:]){
 	fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
-  def hnd = new File(base_path + sep + "results", fname)
+  def hnd = new File(staging_path + sep + "results", fname)
   def json_str = JsonOutput.toJson(details)
   def json_beauty = JsonOutput.prettyPrint(json_str)
   hnd.write(json_beauty)
-  def curl = "curl -i -u \"${api_public_key}:${api_private_key}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @results/${fname}"
+  def curl = "curl -i -u \"${api_public_key}:${api_private_key}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${staging_path}/results/${fname}"
   result = shell_execute(curl)
   display_result(curl, result)
   def json = json_resolver(result)
@@ -226,7 +226,6 @@ def get_input_json(file_path) {
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
-	println "Settings: ${settings.toString()}"
 	return settings
 }
 
