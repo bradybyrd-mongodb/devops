@@ -1,0 +1,20 @@
+name : __CLUSTER_NAME__
+numShards: 1
+replicationFactor": 3
+diskSizeGB: 100
+backupEnabled: false
+autoScaling:
+  diskGBEnabled: false
+providerSettings:
+  providerName: AWS
+  regionName: US_EAST_1
+  instanceSizeName: M10
+  diskIOPS: 120
+  encryptEBSVolume: false
+  providerBackupEnabled: true
+  volumeType: PROVISIONED
+US_EAST_1:
+  analyticsNodes: 0
+  readOnlyNodes: 1
+  electableNodes: 2
+  priority: 6

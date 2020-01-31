@@ -1,0 +1,12 @@
+{
+ "databaseName": "admin",
+ "password": "changeme123",
+ "roles": [{
+   "databaseName": "sales",
+   "roleName": "readWrite"
+ }, {
+   "databaseName": "marketing",
+   "roleName": "read"
+ }],
+ "username": "david"
+}'

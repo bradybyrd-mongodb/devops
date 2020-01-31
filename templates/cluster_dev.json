@@ -1,0 +1,14 @@
+{
+  "name" : "__CLUSTER_NAME__",
+  "numShards" : 1,
+  "replicationFactor" : 3,
+  "providerSettings" : {
+    "providerName" : "AWS",
+    "regionName" : "US_EAST_1",
+    "instanceSizeName" : "M10",
+    "diskIOPS" : 120,
+    "encryptEBSVolume" : false
+  },
+  "diskSizeGB" : 100,
+  "backupEnabled" : false
+}

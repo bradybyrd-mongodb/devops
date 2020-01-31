@@ -1,0 +1,11 @@
+#------------------------------------------------------#
+#  Self Service Environment Template
+#------------------------------------------------------#
+# Name your cluster
+cluster_name: bradydev
+# Scale can be m10,m30,m40
+scale: m30
+# Region can be NY, OH, TX, CA - will be translated into an AWS region
+region: NY
+# Storage required (in Gb)
+storage: 30
