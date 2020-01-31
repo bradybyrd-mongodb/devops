@@ -193,13 +193,13 @@ def print_rest(result){
 
 def atlas_org_info(){
     def url = base_url + "?pretty=true"
-    result = curl_get(url)
+    def result = curl_get(url)
     print_rest(result)
 }
 
 def atlas_cluster_info(){
     def url = base_url + "/groups/${project_id}/clusters?pretty=true"
-    result = curl_get(url)
+    def result = curl_get(url)
     print_rest(result)
 }
 
@@ -214,7 +214,7 @@ def atlas_user_add(){
 		//def json_file_obj = new File( base_path + sep + "results" + sep + file_path )
 		//json_file_obj.write(JsonOutput.toJson(obj))
     def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
-    result = curl_post(url, obj)
+    def result = curl_post(url, obj)
     print_rest(result)
 }
 
