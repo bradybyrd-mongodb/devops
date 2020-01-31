@@ -180,14 +180,13 @@ def json_resolver(result){
   return(jsonSlurper.parseText(jsonstr))
 }
 
-def print_rest(cmd, result){
+def print_rest(result){
   echo "Rest Result:"
-  result.each{ k,v ->
+	echo "#----------------------------------------------------------------#"
+	echo "#----------------------- Results --------------------------------#"
+	result.each{ k,v ->
       if(k == "results"){
-				echo "#----------------------------------------------------------------#"
-				echo "#----------------------- Results --------------------------------#"
-				echo "# Running: ${cmd}"
-        v.each{ item ->
+				v.each{ item ->
           echo "#----------------------------------------------------------------#"
           item.each{ i,j ->
             echo "# ${i} => ${j}"
@@ -256,7 +255,7 @@ def shell_execute(cmd, path = "none"){
 	def proc = command.execute()
 	proc.consumeProcessOutput(sout, serr)
 	proc.waitForOrKill(1000)
-  def outtxt = ["stdout" : sout, "stderr" : serr]
+  def outtxt = ["cmd" : cmd, "stdout" : sout, "stderr" : serr]
   return outtxt
 }
 
