@@ -49,8 +49,8 @@ config = get_settings("${base_path}/${settings_file}")
 staging_path = config["staging_path"]
 base_url = config["base_url"]
 project_id = config["project_id"]
-api_public_key = config["api_public_key"]
-api_private_key = config["api_private_key"]
+api_public_key = "" //config["api_public_key"]
+api_private_key = "" //config["api_private_key"]
 //user_add = config["templates"]["user_add"]
 //cluster_add = config["templates"]["cluster_dev"]
 echo "Working with: ${rootJobName}"
@@ -91,6 +91,7 @@ if(false){ //(git_message.length() == result.length()){
 stage("Atlas Build") {
   node (cur_node) {
     echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
+
     switch (env.AtlasAction){
       case "config_test":
         config_test()
@@ -122,22 +123,28 @@ def not_found(){
 
 @NonCPS
 def curl_get(url){
-  def curl = "curl -X GET -u \"${api_public_key}:${api_private_key}\" --digest -i \"${url}\""
-  //curl -X GET -u "yclukopd:b8c4f8ee-fada-4edb-8195-00f521974f79" --digest -i "https://cloud.mongodb.com/api/atlas/v1.0"
-  result = shell_execute(curl)
+	def curl = ""
+	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
+		curl = "curl -X GET -u \"${SAcred}\" --digest -i \"${url}\""
+		//curl -X GET -u "yclukopd:b8c4f8ee-fada-4edb-8195-00f521974f79" --digest -i "https://cloud.mongodb.com/api/atlas/v1.0"
+	}
+	result = shell_execute(curl)
   display_result(curl, result)
   def json = json_resolver(result)
   return json
 }
 
 def curl_post(url, details = [:]){
+	def curl = ""
 	fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
   def hnd = new File(staging_path + sep + "results", fname)
   def json_str = JsonOutput.toJson(details)
   def json_beauty = JsonOutput.prettyPrint(json_str)
   hnd.write(json_beauty)
-  def curl = "curl -i -u \"${api_public_key}:${api_private_key}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${staging_path}/results/${fname}"
-  result = shell_execute(curl)
+	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
+		curl = "curl -i -u \"${SAcred}\" --digest -H \"Content-Type: application/json\" -X POST \"${url}\" --data @${staging_path}/results/${fname}"
+  }
+	result = shell_execute(curl)
   display_result(curl, result)
   def json = json_resolver(result)
   return json

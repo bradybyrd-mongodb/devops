@@ -2,7 +2,7 @@
   "purpose" : "This is the config document read by the pipeline script in jenkins",
   "base_url" : "https://cloud.mongodb.com/api/atlas/v1.0",
   "project_id" : "5d4d7ed3f2a30b18f4f88946",
-  "api_public_key" : "yclukopd",
-  "api_private_key" : "b8c4f8ee-fada-4edb-8195-00f521974f79",
+  "api_public_key" : "EXPIREDyclukopd",
+  "api_private_key" : "EXPIREDb8c4f8ee-fada-4edb-8195-00f521974f79",
   "staging_path" : "/mnt/devops",
 }
