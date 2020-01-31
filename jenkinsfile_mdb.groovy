@@ -205,7 +205,7 @@ def atlas_cluster_info(){
 
 def atlas_user_add(){
     def obj = [:]
-    obj = get_input_json(env.SettingsFile)
+    obj = get_input_json(env.TemplateFile)
 		args = parse_args(env.RestParameters)
 		obj["roles"][0]["roleName"] = args["role"]
 		obj["username"] = args["username"]
