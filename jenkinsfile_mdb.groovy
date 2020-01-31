@@ -208,7 +208,7 @@ def build_input_json(file_path, updaters = [:]) {
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
-	for k in updaters{
+	for(k in updaters){
 		jsn_path = k.split("\\.")
 		switch (jsn_path.size()){
 			case 1:
