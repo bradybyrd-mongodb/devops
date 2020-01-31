@@ -40,7 +40,8 @@ properties([
 	parameters([
 		//choice(name: 'Landscape', description: "Develop/Release to specify deployment target", choices: 'MP_Dev\nMP_Dev2,MP_Release'),
 		choice(name: 'AtlasAction', description: "Choose Atlas action", choices: 'atlas_org_info\natlas_cluster_info\natlas_user_add\natlas_cluster_add\nconfig_test'),
-    string(name: 'SettingsFile', description: "Enter path to json settings file (relative to repository root)", defaultValue: "settings/mysettings.json")
+    string(name: 'SettingsFile', description: "Enter path to json settings file (relative to repository root)", defaultValue: "settings/mysettings.json"),
+		string(name: 'RestParameters', description: "Enter overrides to json settings file (username=brady collection=movies)", defaultValue: "username=brady role=readAnyDatabase")
 	])
 ])
 
@@ -204,9 +205,10 @@ def atlas_cluster_info(){
 def atlas_user_add(){
     def obj = [:]
     obj = get_input_json(env.SettingsFile)
-		obj["roles"][0]["roleName"] = role
-		obj["username"] = username
-		obj["password"] = password
+		args = parse_args(env.RestParameters)
+		obj["roles"][0]["roleName"] = args["role"]
+		obj["username"] = args["username"]
+		obj["password"] = args["password"]
 		//file_path = "output_${new Date().format( 'yyyyMMddss' )}.json"
 		//def json_file_obj = new File( base_path + sep + "results" + sep + file_path )
 		//json_file_obj.write(JsonOutput.toJson(obj))
@@ -279,6 +281,21 @@ def get_settings(file_path, project = "none") {
 	return settings
 }
 
+def parse_args(args){
+	res = [:]
+	for (arg in args.split("\s")) {
+	  //logit arg
+	  pair = arg.split("=")
+	  if(pair.size() == 2) {
+	    res[pair[0].trim()] = pair[1].trim()
+	    println "  ${pair[0]} - ${pair[1]}"
+	  }else{
+	    res[arg] = ""
+	    println "  ${arg}"
+	  }
+	}
+	return res
+}
 
 def message_box(msg, def mtype = "sep") {
   def tot = 80
