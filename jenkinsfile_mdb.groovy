@@ -203,13 +203,13 @@ def print_rest(result){
 def atlas_org_info(){
     def url = base_url + "?pretty=true"
     def result = curl_get(url)
-    print_rest(result)
+    //print_rest(result)
 }
 
 def atlas_cluster_info(){
     def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_get(url)
-    print_rest(result)
+    //print_rest(result)
 }
 
 def atlas_user_add(){
@@ -224,7 +224,7 @@ def atlas_user_add(){
 		//json_file_obj.write(JsonOutput.toJson(obj))
     def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
     def result = curl_post(url, obj)
-    print_rest(result)
+    //print_rest(result)
 }
 
 //@NonCPS
@@ -261,10 +261,13 @@ def shell_execute(cmd, path = "none"){
 }
 
 def display_result(command, result){
-	println "#------------------------------------------------------#"
-	println "Running: ${command}"
-	println "out> " + result["stdout"]
-	println "err> " + result["stderr"]
+	echo "#------------------------------------------------------#"
+	echo "#------------------- Results --------------------------#"
+	echo "cmd> ${command}"
+	echo "#------------------- STDOUT ---------------------------#"
+	echo result["stdout"]
+	echo "#------------------- STDERR ---------------------------#"
+	echo result["stderr"]
 }
 
 def ensure_dir(pth){
