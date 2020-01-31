@@ -222,11 +222,19 @@ def yaml_test(){
 
 def config_test(){
     logit "Config is OK"
-    logit "tst: ${config["templates"]["cluster_dev"]["name"]}"
+    //logit "tst: ${config["templates"]["cluster_dev"]["name"]}"
     logit "date: ${new Date().format( 'yyyyMMddss' )}"
-    poo = "boo=boot pug=cute business=suit"
-    res = poo.split("\\s")
-    println(res.toString())
+    poo = "bugsy.0.butt.3"
+    jsn_path = poo.split("\\.")
+    jsn_path.eachWithIndex{k,idx ->
+      if(k.isInteger()){
+        jsn_path[idx] = k.toInteger()
+        println("num: ${k}")
+      }else{
+        println("stg: ${k}")
+      }
+    }
+    println(jsn_path.toString())
 }
 
 def stringify_json(json_obj, subval = false){
