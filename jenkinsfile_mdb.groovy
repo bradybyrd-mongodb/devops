@@ -126,7 +126,6 @@ def curl_get(url){
 	def curl = ""
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
 		curl = "curl -X GET -u \"${SAcred}\" --digest -i \"${url}\""
-		//curl -X GET -u "yclukopd:b8c4f8ee-fada-4edb-8195-00f521974f79" --digest -i "https://cloud.mongodb.com/api/atlas/v1.0"
 	}
 	result = shell_execute(curl)
   display_result(curl, result)
@@ -155,8 +154,9 @@ def json_resolver(result){
   def blank = false
   def looksLikeJson = false
   def jsonstr = ""
+	def cnt = 0
   result["stdout"].eachLine{ line ->
-    //println "|> ${line}"
+    println "|> ${line}"
     if( line == "\n" ) {
       blank = true
     }
@@ -173,6 +173,7 @@ def json_resolver(result){
       looksLikeJson = true
       jsonstr += line
     }
+		cnt += 1
   }
 	if(jsonstr == ""){jsonstr = "{\"empty\" : true}"}
   //println "Deduced JSON:"
