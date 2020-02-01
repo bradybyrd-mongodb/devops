@@ -13,6 +13,7 @@ log_file = "${base_path}${sep}dbm_log.txt"
 silent_log = false
 config_file = "mdb_config.json"
 jsonSlurper = new JsonSlurper()
+staging_path = "/Users/brady.byrd/Documents/mongodb/dev/devops"
 
 println "Arguments:"
 for (arg in this.args) {
@@ -28,73 +29,73 @@ for (arg in this.args) {
 }
 
 def rest_get(url_frag, verbose = true) {
-	separator()
-	result = [:]
+  separator()
+  result = [:]
   //url = "${urlString}/${url_frag}".toURL()
   url = "${urlString}".toURL()
-	result["url"] = url
-	con = (HttpURLConnection) url.openConnection();
+  result["url"] = url
+  con = (HttpURLConnection) url.openConnection();
   String userpass = api_public_key + ":" + api_private_key;
   def encoded = userpass.bytes.encodeBase64().toString()
   String basicAuth = "Basic " + encoded;
   con.setRequestProperty ("Authorization", basicAuth);
   con.setUseCaches(true)
-	con.setDoOutput(true)
-	//con.setDoInput(true)
-	con.setRequestProperty("Content-Type", "application/json")
-	result["result"] = con.getResponseCode()
-	result["response"] = con.getInputStream().getText()
-	return result
+  con.setDoOutput(true)
+  //con.setDoInput(true)
+  con.setRequestProperty("Content-Type", "application/json")
+  result["result"] = con.getResponseCode()
+  result["response"] = con.getInputStream().getText()
+  return result
 }
 
 def rest_post(url_frag, params, set_cookie = false) {
-	separator()
-	result = [:]
-	url = "${urlString}/${url_frag}".toURL()
-	result["url"] = url
-	con = (HttpURLConnection) url.openConnection()
-	if(!set_cookie){
-		for (cookie in cookies){
-			con.addRequestProperty("Cookie", cookie.split(";", 2)[0])
-		}
-	}
-	con.setUseCaches(true)
-	con.setDoOutput(true)
-	con.setDoInput(true)
-	con.setRequestProperty("Content-Type", "application/json")
-	con.outputStream.withWriter { writer ->
-	  writer << params
-	}
-	if(set_cookie){
-		cookies = con.getHeaderFields().get("Set-Cookie")
-	}
-	result["result"] = con.getResponseCode()
-	result["response"] = con.getInputStream().getText()
-	return result
+  separator()
+  result = [:]
+  url = "${urlString}/${url_frag}".toURL()
+  result["url"] = url
+  con = (HttpURLConnection) url.openConnection()
+  if(!set_cookie){
+  for (cookie in cookies){
+  con.addRequestProperty("Cookie", cookie.split(";", 2)[0])
+  }
+  }
+  con.setUseCaches(true)
+  con.setDoOutput(true)
+  con.setDoInput(true)
+  con.setRequestProperty("Content-Type", "application/json")
+  con.outputStream.withWriter { writer ->
+    writer << params
+  }
+  if(set_cookie){
+  cookies = con.getHeaderFields().get("Set-Cookie")
+  }
+  result["result"] = con.getResponseCode()
+  result["response"] = con.getInputStream().getText()
+  return result
 }
 
 def shell_execute(cmd, path = "none"){
   def pth = ""
   def command = sep == "/" ? ["/bin/bash", "-c"] : ["cmd", "/c"]
   if(path != "none") {
-	pth = "cd ${path} && "
-	command << pth
+  pth = "cd ${path} && "
+  command << pth
   }
-	command << cmd
+  command << cmd
   def sout = new StringBuffer(), serr = new StringBuffer()
   //println "Running: ${command}"
-	def proc = command.execute()
-	proc.consumeProcessOutput(sout, serr)
-	proc.waitForOrKill(1000)
+  def proc = command.execute()
+  proc.consumeProcessOutput(sout, serr)
+  proc.waitForOrKill(1000)
   def outtxt = ["stdout" : sout, "stderr" : serr]
   return outtxt
 }
 
 def display_result(command, result){
-	println "#------------------------------------------------------#"
-	println "Running: ${command}"
-	println "out> " + result["stdout"]
-	println "err> " + result["stderr"]
+  println "#------------------------------------------------------#"
+  println "Running: ${command}"
+  println "out> " + result["stdout"]
+  println "err> " + result["stderr"]
 }
 
 def message_box(msg, def mtype = "sep") {
@@ -225,21 +226,54 @@ def config_test(){
     //logit "tst: ${config["templates"]["cluster_dev"]["name"]}"
     logit "date: ${new Date().format( 'yyyyMMddss' )}"
     poo = "bugsy.0.butt.3"
-    jsn_path = poo.split("\\.")
-    jsn_path.eachWithIndex{k,idx ->
-      if(k.isInteger()){
-        jsn_path[idx] = k.toInteger()
-        println("num: ${k}")
-      }else{
-        println("stg: ${k}")
-      }
+    def updaters = ["roles.0.roleName" : "admin", "username" : "brady", "password" : "bugsyb"]
+    def fpath = "templates/user_add.json"
+    def res = build_input_json(fpath,updaters)
+    println("Res: ${res}")
+}
+
+def build_input_json(file_path, updaters = [:]) {
+  def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+  def new_file = staging_path + sep + "results" + sep + fname
+  def jsonSlurper = new JsonSlurper()
+  def settings = [:]
+  println "Input Template Document: ${staging_path + sep + file_path}"
+  def json_file_obj = new File( staging_path + sep + file_path )
+  if (json_file_obj.exists() ) {
+    settings = jsonSlurper.parseText(json_file_obj.text)
+  }
+  def json_str = JsonOutput.toJson(settings)
+  def json_beauty = JsonOutput.prettyPrint(json_str)
+  println "Settings\n${json_beauty}"
+  for(k in updaters){
+    jsn_path = k.key.split("\\.")
+    jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
+    //println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
+    switch (jsn_path.size()){
+    case 1:
+    settings[jsn_path[0]] = k.value
+      break
+    case 2:
+    settings[jsn_path[0]][jsn_path[1]] = k.value
+      break
+    case 3:
+    settings[jsn_path[0]][0][jsn_path[2]] = k.value
+      break
+    case 4:
+      settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
+      break
     }
-    println(jsn_path.toString())
+  }
+  def hnd = new File(new_file)
+  json_str = JsonOutput.toJson(settings)
+  json_beauty = JsonOutput.prettyPrint(json_str)
+  hnd.write(json_beauty)
+  return new_file
 }
 
 def stringify_json(json_obj, subval = false){
   seed = [:]
-	json_obj.each{ k, v ->
+  json_obj.each{ k, v ->
     if( v instanceof Map){
       seed[k] = stringify_json(seed, true)
     }else if( v == null ){
@@ -258,29 +292,29 @@ def stringify_json(json_obj, subval = false){
 }
 
 def init_log(){
-	logit("#------------- New Run ---------------#")
-	//logit("# ARGS:")
-	//logit(arg_map.toString())
+  logit("#------------- New Run ---------------#")
+  //logit("# ARGS:")
+  //logit(arg_map.toString())
 }
 
 def logit(String message, log_type = "INFO", display_only = true){
-	def sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
-	def cur_date = new Date()
-	if(!display_only){
-		def hnd = new File(log_file)
-		if( !hnd.exists() ){
-			hnd.createNewFile()
-		}
-	}
-	def stamp = "${sdf.format(cur_date)}|${log_type}> "
-	message.eachLine { line->
-		if(!silent_log){
-			println "${stamp}${line.trim()}"
-		}
-		if(!display_only){
-			hnd.append("\r\n${stamp}${line}")
-		}
-	}
+  def sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+  def cur_date = new Date()
+  if(!display_only){
+  def hnd = new File(log_file)
+  if( !hnd.exists() ){
+  hnd.createNewFile()
+  }
+  }
+  def stamp = "${sdf.format(cur_date)}|${log_type}> "
+  message.eachLine { line->
+  if(!silent_log){
+  println "${stamp}${line.trim()}"
+  }
+  if(!display_only){
+  hnd.append("\r\n${stamp}${line}")
+  }
+  }
 }
 /*
 #---------------------------------------------------------#
@@ -321,13 +355,13 @@ if (arg_map.containsKey("action")) {
       break
     default:
       println "Action does not exist"
-	  System.exit(1)
+    System.exit(1)
       break
   }
 }else{
   if(enforce_args){
-	   println "Error: specify action=<action> as argument"
-	   System.exit(1)
+     println "Error: specify action=<action> as argument"
+     System.exit(1)
   }else{
     println "No args given"
   }

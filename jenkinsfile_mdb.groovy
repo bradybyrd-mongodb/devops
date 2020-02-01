@@ -199,35 +199,42 @@ def atlas_user_add(){
 
 @NonCPS
 def build_input_json(file_path, updaters = [:]) {
-	def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
-	def new_file = staging_path + sep + "results" + sep + fname
+  def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+  def new_file = staging_path + sep + "results" + sep + fname
   def jsonSlurper = new JsonSlurper()
-	def settings = [:]
-	println "Input Template Document: ${staging_path + sep + file_path}"
-	def json_file_obj = new File( staging_path + sep + file_path )
-	if (json_file_obj.exists() ) {
-	  settings = jsonSlurper.parseText(json_file_obj.text)
-	}
-	for(k in updaters){
-		jsn_path = k.key.split("\\.")
-		jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
-		println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
-		switch (jsn_path.size()){
-			case 1:
-				settings[jsn_path[0]] = k.value
-			case 2:
-				settings[jsn_path[0]][jsn_path[1]] = k.value
-			case 3:
-				settings[jsn_path[0]][0][jsn_path[2]] = k.value
-			case 4:
-				settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
-		}
-	}
-	def hnd = new File(new_file)
+  def settings = [:]
+  println "Input Template Document: ${staging_path + sep + file_path}"
+  def json_file_obj = new File( staging_path + sep + file_path )
+  if (json_file_obj.exists() ) {
+    settings = jsonSlurper.parseText(json_file_obj.text)
+  }
   def json_str = JsonOutput.toJson(settings)
   def json_beauty = JsonOutput.prettyPrint(json_str)
+  println "Settings\n${json_beauty}"
+  for(k in updaters){
+    jsn_path = k.key.split("\\.")
+    jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
+    //println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
+    switch (jsn_path.size()){
+    case 1:
+    settings[jsn_path[0]] = k.value
+      break
+    case 2:
+    settings[jsn_path[0]][jsn_path[1]] = k.value
+      break
+    case 3:
+    settings[jsn_path[0]][0][jsn_path[2]] = k.value
+      break
+    case 4:
+      settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
+      break
+    }
+  }
+  def hnd = new File(new_file)
+  json_str = JsonOutput.toJson(settings)
+  json_beauty = JsonOutput.prettyPrint(json_str)
   hnd.write(json_beauty)
-	return new_file
+  return new_file
 }
 
 def config_test(){
