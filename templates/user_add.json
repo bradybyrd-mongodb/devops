@@ -1,5 +1,5 @@
 {
-  "database_name" : "admin",
+  "databaseName" : "admin",
   "roles" : [
     {"databaseName" : "admin", "roleName" : "MyNewRole"}
   ],
