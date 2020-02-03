@@ -186,14 +186,34 @@ def atlas_cluster_info(){
     def result = curl_get(url)
 }
 
-def atlas_user_add(){
+def atlas_user_add(passed_args = [:]){
     def obj = [:]
-		def args = parse_args(env.RestParameters)
+		if( passed_args.size() < 1){
+			args = parse_args(env.RestParameters)
+		}else{
+			args = passed_args
+		}
 		obj["roles.0.roleName"] = args["role"]
 		obj["username"] = args["username"]
 		obj["password"] = args["password"]
 		new_file = build_input_json(env.TemplateFile, obj)
 		def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
+    def result = curl_post(url, new_file)
+}
+
+def atlas_cluster_add(passed_args = [:]){
+    def obj = [:]
+		def args = [:]
+		if( passed_args.size() < 1){
+			args = parse_args(env.RestParameters)
+		}else{
+			args = passed_args
+		}
+		obj["name"] = args["cluster_name"]
+		obj["providerSettings.instanceSizeName"] = args["instance_size"]
+		obj["diskSizeGB"] = args["disk_size"]
+		new_file = build_input_json(env.TemplateFile, obj)
+		def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_post(url, new_file)
 }
 
