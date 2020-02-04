@@ -183,7 +183,7 @@ def not_found(){
 
 //@NonCPS
 def get_env_vars(){
-	srtg = ""
+	stg = ""
 	env.each{ k,v ->
 		stg += "${k} => ${v}"
 	}
