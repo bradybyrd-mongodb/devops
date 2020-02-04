@@ -256,7 +256,7 @@ def process_git_commit() {
   echo "Git new files: ${files}"
   def copy_files = []
   files.each{
-    fil = new File("${staging_path}${sep}${it}")
+    fil = new File("${staging_path}${git_suffix}${sep}${it}")
     if(fil.getName().endsWith(".json")) {
       echo "Match - ${fil.getName()}"
       copy_files << fil
@@ -358,7 +358,7 @@ def get_settings(file_path, project = "none") {
 	base_path = "$env.WORKSPACE"
 	echo "BasePath: ${base_path}"
 	println "JSON Settings Document: ${file_path}"
-	def json_file_obj = new java.io.File( base_path, file_path )
+	def json_file_obj = new java.io.File( "${base_path}${git_suffix}", file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
