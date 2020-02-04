@@ -1,27 +1,22 @@
 {
   "instructions" : "Provisioning script, break into steps",
   "title" : "Basic Provisioning",
-  "steps" : {
-    "1) View existing clusters" : {
+  "steps" : [
+    {
+      "name" : "1) View existing clusters",
       "action" : "atlas_cluster_info",
-      "args" : {}
+      "template" : ""
     },
-    "2) Create db user" : {
+    {
+      "name" : "2) Create db user",
       "action" : "atlas_user_add",
-      "args" : {
-        "role" : "readWriteAnyDatabase",
-        "username" : "brady",
-        "password" : "bugsy123"
-      }
+      "template" : "instructions/user_add_02012020.json"
     },
-    "3) Create new M10 cluster" : {
+    {
+      "name" : "3) Create new M10 cluster",
       "action" : "atlas_cluster_add",
-      "args" : {
-        "cluster_name" : "NewTmpCLuster",
-        "instance_size" : "M30",
-        "disk_size" : "100"
-      }
+      "template" : "instructions/cluster_02012020.json"
     }
-  }
+  ]
 
 }

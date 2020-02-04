@@ -99,42 +99,74 @@ if(git_message.contains(keyword_to_deploy)){
 		echo "Performing Instructions from ${target_file}"
 	}
 }
+if(hands_free){
+	def inc = 0
+	instructions = get_instructions(target_file)
+	echo "#------------------- ${instructions["title"]} -------------------------#"
+	//  Note - loops are no serializable in pipeline
+	def num_Items = instructions["actions"].size()
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 1
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 2
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 3
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 4
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 5
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 6
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 7
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 8
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
+	inc = 9
+	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+		perform_action(instructions["actions"][inc])
+	}}}
 
-stage("Atlas Build") {
-  node (cur_node) {
-		if(hands_free){
-			instructions = get_instructions(target_file)
-			echo "#------------------- ${instructions["title"]} -------------------------#"
-			instructions["actions"].each{ step,items ->
-				perform_action(step, items)
-			}
-		}else{
-			echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
-			perform_action(env.AtlasAction)
-		}
-
-
-        //bat "${staging_path}${sep}${item.trim()}*.sql\" \"${staging_dir}${sep}${version}\""
-    }
-  }
+}else{
+	echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
+	perform_action(env.AtlasAction)
 }
 
-def perform_action(action, args = [:]){
-	switch (action){
+
+def perform_action(action){
+	switch (action["name"]){
 		case "config_test":
-			config_test(args)
+			config_test()
 			break
 		case "atlas_org_info":
-			atlas_org_info(args)
+			atlas_org_info()
 			break
 		case "atlas_cluster_info":
-			atlas_cluster_info(args)
+			atlas_cluster_info()
 			break
 		case "atlas_user_add":
-			atlas_user_add(args)
+			atlas_user_add(action["template"])
 			break
 		case "atlas_cluster_add":
-			atlas_cluster_add(args)
+			atlas_cluster_add(actin["template"])
 			break
 		default:
 			not_found()
@@ -180,36 +212,20 @@ def atlas_cluster_info(args = [:]){
     def result = curl_get(url)
 }
 
-def atlas_user_add(passed_args = [:]){
-    def obj = [:]
-		if( passed_args.size() < 1){
-			args = parse_args(env.RestParameters)
-		}else{
-			args = passed_args
+def atlas_user_add(template = ""){
+		if( template = ""){
+			template = env.TemplateFile
 		}
-		obj["roles.0.roleName"] = args["role"]
-		obj["username"] = args["username"]
-		obj["password"] = args["password"]
-		new_file = build_input_json(env.TemplateFile, obj)
+		def new_file = "${staging_path}${sep}${template}"
 		def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
     def result = curl_post(url, new_file)
 }
 
 def atlas_cluster_add(passed_args = [:]){
-    def obj = [:]
-		def args = [:]
-		if( passed_args.size() < 1){
-			args = parse_args(env.RestParameters)
-			obj["name"] = args["cluster_name"]
-			obj["providerSettings.instanceSizeName"] = args["instance_size"]
-			obj["diskSizeGB"] = args["disk_size"]
-		}else{
-			passed_args.each{ arg,value ->
-				obj[arg] = value
-			}
+		if( template = ""){
+			template = env.TemplateFile
 		}
-
-		new_file = build_input_json(env.TemplateFile, obj)
+		def new_file = "${staging_path}${sep}${template}"
 		def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_post(url, new_file)
 }
@@ -245,66 +261,6 @@ def process_git_commit() {
   return target_path
 }
 
-@NonCPS
-def get_instructions(file_path){
-	def tmp_config = get_settings(file_path)
-	def result = [:]
-	result["title"] = tmp_config["title"]
-	def actions = []
-	def tmp = [:]
-	tmp_config.steps.each{ k,v ->
-		tmp = [:]
-		tmp["action"] = v["action"]
-		tmp["args"] = [:]
-		v["args"].each{ j,k ->
-			tmp["args"][j] = k
-		}
-		actions[k] = tmp
-	}
-	result["actions"] = actions
-	tmp_config = null
-	return(result)
-}
-
-@NonCPS
-def build_input_json(file_path, updaters = [:]) {
-  def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
-  def new_file = staging_path + sep + "results" + sep + fname
-  def jsonSlurper = new JsonSlurper()
-  def settings = [:]
-  println "Input Template Document: ${staging_path + sep + file_path}"
-  def json_file_obj = new File( staging_path + sep + file_path )
-  if (json_file_obj.exists() ) {
-    settings = jsonSlurper.parseText(json_file_obj.text)
-  }
-  def json_str = JsonOutput.toJson(settings)
-  def json_beauty = JsonOutput.prettyPrint(json_str)
-  println "Settings\n${json_beauty}"
-  for(k in updaters){
-    jsn_path = k.key.split("\\.")
-    jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
-    //println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
-    switch (jsn_path.size()){
-    case 1:
-    settings[jsn_path[0]] = k.value
-      break
-    case 2:
-    settings[jsn_path[0]][jsn_path[1]] = k.value
-      break
-    case 3:
-    settings[jsn_path[0]][0][jsn_path[2]] = k.value
-      break
-    case 4:
-      settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
-      break
-    }
-  }
-  def hnd = new File(new_file)
-  json_str = JsonOutput.toJson(settings)
-  json_beauty = JsonOutput.prettyPrint(json_str)
-  hnd.write(json_beauty)
-  return new_file
-}
 
 def config_test(){
     println "Config is OK"
@@ -394,6 +350,25 @@ def get_settings(file_path, project = "none") {
 	return settings
 }
 
+@NonCPS
+def get_instructions(file_path){
+	def tmp_config = get_settings(file_path)
+	def result = [:]
+	result["title"] = tmp_config["title"]
+	def actions = []
+	def tmp = [:]
+	tmp_config.steps.each{
+		tmp = [:]
+		tmp["name"] = it["name"]
+		tmp["action"] = it["action"]
+		tmp["template"] = it["template"]
+		actions << tmp
+	}
+	result["actions"] = actions
+	tmp_config = null
+	return(result)
+}
+
 def parse_args(args){
 	res = [:]
 	items = args.split("\\s")
@@ -433,4 +408,46 @@ def message_box(msg, def mtype = "sep") {
 def separator( def ilength = 82){
   def dashy = "-" * (ilength - 2)
   //println "#${dashy}#"
+}
+
+// ----------------- Not used -----------------------
+
+@NonCPS
+def build_input_json(file_path, updaters = [:]) {
+  def fname = "output_${new Date().format( 'yyyyMMddss' )}.json"
+  def new_file = staging_path + sep + "results" + sep + fname
+  def jsonSlurper = new JsonSlurper()
+  def settings = [:]
+  println "Input Template Document: ${staging_path + sep + file_path}"
+  def json_file_obj = new File( staging_path + sep + file_path )
+  if (json_file_obj.exists() ) {
+    settings = jsonSlurper.parseText(json_file_obj.text)
+  }
+  def json_str = JsonOutput.toJson(settings)
+  def json_beauty = JsonOutput.prettyPrint(json_str)
+  println "Settings\n${json_beauty}"
+  for(k in updaters){
+    jsn_path = k.key.split("\\.")
+    jsn_path.eachWithIndex{ j,idx -> if( j.isInteger()){ jsn_path[idx] = j.toInteger() } }
+    //println("jsnpath: ${jsn_path}, size: ${jsn_path.size()}")
+    switch (jsn_path.size()){
+    case 1:
+    settings[jsn_path[0]] = k.value
+      break
+    case 2:
+    settings[jsn_path[0]][jsn_path[1]] = k.value
+      break
+    case 3:
+    settings[jsn_path[0]][0][jsn_path[2]] = k.value
+      break
+    case 4:
+      settings[jsn_path[0]][jsn_path[1]][jsn_path[2]][jsn_path[3]] = k.value
+      break
+    }
+  }
+  def hnd = new File(new_file)
+  json_str = JsonOutput.toJson(settings)
+  json_beauty = JsonOutput.prettyPrint(json_str)
+  hnd.write(json_beauty)
+  return new_file
 }
