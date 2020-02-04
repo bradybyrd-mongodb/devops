@@ -372,7 +372,8 @@ def get_settings(file_path, project = "none") {
 def get_instructions(file_path){
 	def jsonSlurper = new JsonSlurper()
 	def tmp_config = [:]
-	def json_file_obj = new File( file_path )
+	def json_file_obj = new java.io.File( "${base_path}${git_suffix}${sep}instructions", "simple_provision.json" )
+	//def json_file_obj = new File( file_path )
 	if (json_file_obj.exists() ) {
 	  tmp_config = jsonSlurper.parseText(json_file_obj.text)
 	}
