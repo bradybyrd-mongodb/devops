@@ -1,6 +1,7 @@
 {
   "instructions" : "Provisioning script, break into steps",
   "title" : "Basic Provisioning",
+  "instructions-steps" : "Enter a step for each action in the pipeline",
   "steps" : [
     {
       "name" : "1) View existing clusters",
