@@ -230,7 +230,7 @@ def config_test(){
     def fpath = "templates/user_add.json"
     //def res = build_input_json(fpath,updaters)
     def res = git_trigger()
-    println("Res: ${res}")
+    read_instructions(res)
 }
 
 def build_input_json(file_path, updaters = [:]) {
@@ -319,72 +319,113 @@ def logit(String message, log_type = "INFO", display_only = true){
 }
 
 def get_settings(file_path, project = "none") {
-	def jsonSlurper = new JsonSlurper()
-	def settings = [:]
-	println "JSON Settings Document: ${file_path}"
-	def json_file_obj = new File( file_path )
-	if (json_file_obj.exists() ) {
-	  settings = jsonSlurper.parseText(json_file_obj.text)
-	}
-	return settings
+  def jsonSlurper = new JsonSlurper()
+  def settings = [:]
+  println "JSON Settings Document: ${file_path}"
+  def json_file_obj = new File( file_path.toString() )
+  if (json_file_obj.exists() ) {
+    settings = jsonSlurper.parseText(json_file_obj.text)
+  }
+  return settings
 }
 
 def git_trigger() {
-	def reg = ~/.*\[DBCR: (.*)\].*/
-	def cmd = "git log -1 HEAD" // --pretty=format:%s"
-	def res = shell_execute(cmd)
-	def raw = ""
-	def commit = "dont know yet"
-	message_box("Git Trigger")
-	println "# Commit: ${res["stdout"]}"
-	raw = res["stdout"].toString().trim()
-	if(!raw.contains("#DBDEPLOY")){
-		println "Commit did not contain #DBDEPLOY"
-		System.exit(0)
-	}
-	def lines = raw.split("\n")
-	//println "Git lines: ${lines}"
-	lines.each{
-		//println "Working: ${it}"
-		if(it.startsWith("commit ")){
-			commit = it.replaceAll("commit ","").trim()
-		}
-	}
-	println "# Revision: ${commit}"
-	//Pick new files in commit
-	// git diff-tree --no-commit-id --name-only -r 32b0f0dd6e4bd810f3edc4bcd8a114f8f98a65ea
-	cmd = "git diff-tree --no-commit-id --name-only -r ${commit}"
-	res = shell_execute(cmd)
-	display_result(cmd,res)
-	raw = res["stdout"].toString().trim()
+  def reg = ~/.*\[DBCR: (.*)\].*/
+  def cmd = "git log -1 HEAD" // --pretty=format:%s"
+  def res = shell_execute(cmd)
+  def raw = ""
+  def commit = "dont know yet"
+  def target_path = ""
+  message_box("Git Trigger")
+  println "# Commit: ${res["stdout"]}"
+  raw = res["stdout"].toString().trim()
+  if(!raw.contains("#DBDEPLOY")){
+    println "Commit did not contain #DBDEPLOY"
+    System.exit(0)
+  }
+  def lines = raw.split("\n")
+  //println "Git lines: ${lines}"
+  lines.each{
+    //println "Working: ${it}"
+    if(it.startsWith("commit ")){
+      commit = it.replaceAll("commit ","").trim()
+    }
+  }
+  println "# Revision: ${commit}"
+  //Pick new files in commit
+  // git diff-tree --no-commit-id --name-only -r 32b0f0dd6e4bd810f3edc4bcd8a114f8f98a65ea
+  cmd = "git diff-tree --no-commit-id --name-only -r ${commit}"
+  res = shell_execute(cmd)
+  display_result(cmd,res)
+  raw = res["stdout"].toString().trim()
 
-	def files = raw.split("\n")
-	println "Git new files: ${files}"
-	def cur_version = "2.3_fakeversion"
-	def copy_files = []
-	files.each{
-		fil = new File("${staging_path}${sep}${it}")
-		if(fil.getName().endsWith(".json")) {
-			println "Match - ${fil.getName()}"
-			copy_files << fil
-		}
-	}
-	if(false) { //}(copy_files.size() > 0){
-		cur_version = next_version(project_settings)
-		def target_path = "${staging_path}${sep}${cur_version}"
-		cmd = "mkdir ${target_path}"
-		res = shell_execute(cmd)
-		display_result(cmd,res)
-		copy_files.each{
-			println "Targ: ${target_path}, ${it.getName()}"
-			dest = new File(target_path, it.getName())
-			dest << it.text
-		}
-	}else{
-		println "#----- No files for deployment - must have .json extension"
-		System.exit(0)
-	}
+  def files = raw.split("\n")
+  println "Git new files: ${files}"
+  def cur_version = "2.3_fakeversion"
+  def copy_files = []
+  files.each{
+    fil = new File("${staging_path}${sep}${it}")
+    if(fil.getName().endsWith(".json")) {
+      println "Match - ${fil.getName()}"
+      copy_files << fil
+    }
+  }
+  if(copy_files.size() > 0){
+    copy_files.each{
+      target_path = it
+      println "Target Instructions: ${target_path}"
+    }
+  }else{
+    println "#-------- No files for deployment - must have .json extension ----------#"
+    System.exit(0)
+  }
+  return target_path
 }
+
+def read_instructions(instructions_json){
+  def instructions = get_settings(instructions_json)
+  def json_str = JsonOutput.toJson(instructions)
+  def json_beauty = JsonOutput.prettyPrint(json_str)
+  println "New Instructions: ${instructions_json}"
+  println "Settings\n${json_beauty}"
+  message_box(instructions["title"], "title")
+  instructions["steps"].each{ step,action ->
+
+  }
+
+}
+
+def process_action(instructions = [:]){
+
+  if (arg_map.containsKey("action")) {
+    switch (arg_map["action"].toLowerCase()) {
+      case "atlas_clusters":
+        atlas_cluster_info()
+        break
+      case "atlas_org_info":
+        atlas_org_info()
+        break
+      case "atlas_create_cluster":
+        atlas_create_cluster()
+        break
+      case "config_test":
+        config_test()
+        break
+      default:
+        println "Action does not exist"
+      System.exit(1)
+        break
+    }
+  }else{
+    if(enforce_args){
+       println "Error: specify action=<action> as argument"
+       System.exit(1)
+    }else{
+      println "No args given"
+    }
+  }
+}
+
 /*
 #---------------------------------------------------------#
 #                         MAIN                            #
@@ -408,30 +449,4 @@ project_id = config["project_id"] //"5d4d7ed3f2a30b18f4f88946"
 api_public_key = config["api_public_key"] //"yclukopd"
 api_private_key = config["api_private_key"] //"b8c4f8ee-fada-4edb-8195-00f521974f79"
 staging_path = "/Users/brady.byrd/Documents/mongodb/dev/DevOps" // config["staging_path"]
-if (arg_map.containsKey("action")) {
-  switch (arg_map["action"].toLowerCase()) {
-    case "atlas_clusters":
-      atlas_cluster_info()
-      break
-    case "atlas_org_info":
-      atlas_org_info()
-      break
-    case "atlas_create_cluster":
-      atlas_create_cluster()
-      break
-    case "config_test":
-      config_test()
-      break
-    default:
-      println "Action does not exist"
-    System.exit(1)
-      break
-  }
-}else{
-  if(enforce_args){
-     println "Error: specify action=<action> as argument"
-     System.exit(1)
-  }else{
-    println "No args given"
-  }
-}
+process_action()

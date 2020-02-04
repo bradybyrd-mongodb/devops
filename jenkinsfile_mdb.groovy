@@ -30,6 +30,7 @@ def config = [:]
 def git_message = ""
 // message looks like this "Adding new tables [Version: V2.3.4] "
 def reg = ~/.*\[Version: (.*)\].*/
+def keyword_to_deploy = "#DBDEPLOY"
 def approver = ""
 def cur_node = ""
 def result = ""
@@ -44,7 +45,7 @@ properties([
 		string(name: 'RestParameters', description: "Enter overrides to json settings file (username=brady collection=movies)", defaultValue: "username=brady role=readAnyDatabase")
 	])
 ])
-
+hands_free = false
 config = get_settings("${base_path}/${settings_file}")
 staging_path = config["staging_path"]
 base_url = config["base_url"]
@@ -73,47 +74,72 @@ stage('GitParams') {
         echo "# Read latest commit..."
         sh "git --version"
         git_message = sh(
-          script: "cd ${base_path} && git log -1 HEAD --pretty=format:%s",
+          script: "cd ${base_path} && git log -1 HEAD" // --pretty=format:%s",
           returnStdout: true
         ).trim()
-
-    //git_message = "This is git message. [VERSION: 2.5.0]"
-    echo "# From Git: ${git_message}"
+		def lines = git_message.split("\n")
+		//println "Git lines: ${lines}"
+		lines.each{
+			//println "Working: ${it}"
+			if(it.startsWith("commit ")){
+				commit = it.replaceAll("commit ","").trim()
+			}
+		}
+		echo "# From Git: ${git_message}\n# Revision: ${commit}"
   }
 }
 
-if(false){ //(git_message.length() == result.length()){
-	echo "No VERSION found\nResult: ${result}\nGit: ${git_message}"
-	currentBuild.result = "UNSTABLE"
-	return
+if(git_message.contains(keyword_to_deploy)){
+	target_file = process_git_commit()
+	if(target_file = ""){
+		echo "No .json instructions file in commit"
+		currentBuild.result = "UNSTABLE"
+	}else{
+		hands_free = true
+		echo "Performing Instructions from ${target_file}"
+	}
 }
 
 stage("Atlas Build") {
   node (cur_node) {
-    echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
+		if(hands_free){
+			instructions = get_instructions(target_file)
+			echo "#------------------- ${instructions["title"]} -------------------------#"
+			instructions["actions"].each{ step,items ->
+				perform_action(step, items)
+			}
+		}else{
+			echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
+			perform_action(env.AtlasAction)
+		}
 
-    switch (env.AtlasAction){
-      case "config_test":
-        config_test()
-        break
-      case "atlas_org_info":
-        atlas_org_info()
-        break
-      case "atlas_cluster_info":
-        atlas_cluster_info()
-        break
-      case "atlas_user_add":
-        atlas_user_add()
-        break
-      case "atlas_cluster_add":
-        atlas_cluster_add()
-        break
-      default:
-        not_found()
-        break
+
         //bat "${staging_path}${sep}${item.trim()}*.sql\" \"${staging_dir}${sep}${version}\""
     }
   }
+}
+
+def perform_action(action, args = [:]){
+	switch (action){
+		case "config_test":
+			config_test(args)
+			break
+		case "atlas_org_info":
+			atlas_org_info(args)
+			break
+		case "atlas_cluster_info":
+			atlas_cluster_info(args)
+			break
+		case "atlas_user_add":
+			atlas_user_add(args)
+			break
+		case "atlas_cluster_add":
+			atlas_cluster_add(args)
+			break
+		default:
+			not_found()
+			break
+	}
 }
 
 def not_found(){
@@ -144,44 +170,12 @@ def curl_post(url, file_path){
   return json
 }
 
-def json_resolver(result){
-  def jsonSlurper = new JsonSlurper()
-  def blank = false
-  def looksLikeJson = false
-  def jsonstr = ""
-	def cnt = 0
-  result["stdout"].eachLine{ line ->
-    println "|> ${line}"
-    if( line == "\n" ) {
-      blank = true
-    }
-    if( blank && looksLikeJson ) {
-      looksLikeJson = false
-    }
-    if( !blank && looksLikeJson ) {
-      looksLikeJson = true
-      jsonstr += line
-    }
-
-    if( !blank && line.toString().startsWith("{" )) {
-      blank = false
-      looksLikeJson = true
-      jsonstr += line
-    }
-		cnt += 1
-  }
-	if(jsonstr == ""){jsonstr = "{\"empty\" : true}"}
-  //println "Deduced JSON:"
-  //println jsonstr
-  return(jsonSlurper.parseText(jsonstr))
-}
-
-def atlas_org_info(){
+def atlas_org_info(args = [:]){
     def url = base_url + "?pretty=true"
     def result = curl_get(url)
 }
 
-def atlas_cluster_info(){
+def atlas_cluster_info(args = [:]){
     def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_get(url)
 }
@@ -206,15 +200,70 @@ def atlas_cluster_add(passed_args = [:]){
 		def args = [:]
 		if( passed_args.size() < 1){
 			args = parse_args(env.RestParameters)
+			obj["name"] = args["cluster_name"]
+			obj["providerSettings.instanceSizeName"] = args["instance_size"]
+			obj["diskSizeGB"] = args["disk_size"]
 		}else{
-			args = passed_args
+			passed_args.each{ arg,value ->
+				obj[arg] = value
+			}
 		}
-		obj["name"] = args["cluster_name"]
-		obj["providerSettings.instanceSizeName"] = args["instance_size"]
-		obj["diskSizeGB"] = args["disk_size"]
+
 		new_file = build_input_json(env.TemplateFile, obj)
 		def url = base_url + "/groups/${project_id}/clusters?pretty=true"
     def result = curl_post(url, new_file)
+}
+
+def process_git_commit() {
+  //Pick new files in commit
+  // git diff-tree --no-commit-id --name-only -r 32b0f0dd6e4bd810f3edc4bcd8a114f8f98a65ea
+  cmd = "git diff-tree --no-commit-id --name-only -r ${commit}"
+	def target_path = ""
+	def raw = sh(
+		script: cmd,
+		returnStdout: true
+	).trim()
+  def files = raw.split("\n")
+  echo "Git new files: ${files}"
+  def copy_files = []
+  files.each{
+    fil = new File("${staging_path}${sep}${it}")
+    if(fil.getName().endsWith(".json")) {
+      echo "Match - ${fil.getName()}"
+      copy_files << fil
+    }
+  }
+  if(copy_files.size() > 0){
+    copy_files.each{
+      target_path = it
+      echo "Target Instructions: ${target_path}"
+    }
+  }else{
+    echo "#-------- No files for deployment - must have .json extension ----------#"
+    return ""
+  }
+  return target_path
+}
+
+@NonCPS
+def get_instructions(file_path){
+	def tmp_config = get_settings(file_path)
+	def result = [:]
+	result["title"] = tmp_config["title"]
+	def actions = []
+	def tmp = [:]
+	tmp_config.steps.each{ k,v ->
+		tmp = [:]
+		tmp["action"] = v["action"]
+		tmp["args"] = [:]
+		v["args"].each{ j,k ->
+			tmp["args"][j] = k
+		}
+		actions[k] = tmp
+	}
+	result["actions"] = actions
+	tmp_config = null
+	return(result)
 }
 
 @NonCPS
@@ -261,6 +310,38 @@ def config_test(){
     println "Config is OK"
 }
 
+def json_resolver(result){
+  def jsonSlurper = new JsonSlurper()
+  def blank = false
+  def looksLikeJson = false
+  def jsonstr = ""
+	def cnt = 0
+  result["stdout"].eachLine{ line ->
+    println "|> ${line}"
+    if( line == "\n" ) {
+      blank = true
+    }
+    if( blank && looksLikeJson ) {
+      looksLikeJson = false
+    }
+    if( !blank && looksLikeJson ) {
+      looksLikeJson = true
+      jsonstr += line
+    }
+
+    if( !blank && line.toString().startsWith("{" )) {
+      blank = false
+      looksLikeJson = true
+      jsonstr += line
+    }
+		cnt += 1
+  }
+	if(jsonstr == ""){jsonstr = "{\"empty\" : true}"}
+  //println "Deduced JSON:"
+  //println jsonstr
+  return(jsonSlurper.parseText(jsonstr))
+}
+
 def shell_execute(cmd, path = "none"){
   def pth = ""
   def command = sep == "/" ? ["/bin/bash", "-c"] : ["cmd", "/c"]
@@ -301,6 +382,7 @@ def ensure_dir(pth){
   }
 }
 
+@NonCPS
 def get_settings(file_path, project = "none") {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]

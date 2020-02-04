@@ -3,7 +3,8 @@
   "title" : "Basic Provisioning",
   "steps" : {
     "1) View existing clusters" : {
-      "action" : "atlas_cluster_info"
+      "action" : "atlas_cluster_info",
+      "args" : {}
     },
     "2) Create db user" : {
       "action" : "atlas_user_add",
