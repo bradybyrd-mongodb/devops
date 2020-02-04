@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 def landscape = "job"
 //def base_path = new File(getClass().protectionDomain.codeSource.location.path).parent
 // Set this variable to point to the folder where your local_settings.json folder
-def base_path = "" //"/mnt/devops"
+base_path = "" //"/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
 // #------------------- Change anything below at your own risk -------------------#
@@ -60,8 +60,6 @@ echo "Working with: ${rootJobName}"
 */
 stage('GitParams') {
   node (cur_node) {
-		base_path = "$env.WORKSPACE"
-		echo "BasePath: ${base_path}"
 		get_settings("${base_path}/${settings_file}")
 		echo '#---------------------- Summary ----------------------#'
     echo "#  Validating Git Commit"
@@ -353,6 +351,8 @@ def ensure_dir(pth){
 def get_settings(file_path, project = "none") {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]
+	base_path = "$env.WORKSPACE"
+	echo "BasePath: ${base_path}"
 	println "JSON Settings Document: ${file_path}"
 	def json_file_obj = new File( file_path )
 	if (json_file_obj.exists() ) {
