@@ -213,7 +213,7 @@ def atlas_cluster_info(args = [:]){
 }
 
 def atlas_user_add(template = ""){
-		if( template = ""){
+		if( template == ""){
 			template = env.TemplateFile
 		}
 		def new_file = "${staging_path}${sep}${template}"
@@ -222,7 +222,7 @@ def atlas_user_add(template = ""){
 }
 
 def atlas_cluster_add(passed_args = [:]){
-		if( template = ""){
+		if( template == ""){
 			template = env.TemplateFile
 		}
 		def new_file = "${staging_path}${sep}${template}"
