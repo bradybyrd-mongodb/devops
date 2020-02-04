@@ -74,7 +74,7 @@ stage('GitParams') {
         echo "# Read latest commit..."
         sh "git --version"
         git_message = sh(
-          script: "cd ${base_path} && git log -1 HEAD" // --pretty=format:%s",
+          script: "cd ${base_path} && git log -1 HEAD", // --pretty=format:%s",
           returnStdout: true
         ).trim()
 		def lines = git_message.split("\n")
