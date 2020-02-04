@@ -91,7 +91,7 @@ stage('GitParams') {
 
 if(git_message.contains(keyword_to_deploy)){
 	target_file = process_git_commit()
-	if(target_file = ""){
+	if(target_file == ""){
 		echo "No .json instructions file in commit"
 		currentBuild.result = "UNSTABLE"
 	}else{
