@@ -13,6 +13,9 @@ def landscape = "job"
 base_path = "" //"/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
+// Jenkins git checkouts get a suffix on the path that is different from workspace
+def git_suffix = "@script"
+
 // #------------------- Change anything below at your own risk -------------------#
 // #---- (but please take the time to understand what is going on in the code here ;-> ) ---#
 
@@ -75,7 +78,7 @@ stage('GitParams') {
     echo "# Read latest commit..."
     sh "git --version"
     git_message = sh(
-      script: "cd ${base_path} && git log -1 HEAD", // --pretty=format:%s",
+      script: "cd ${base_path}${git_suffix} && git log -1 HEAD", // --pretty=format:%s",
       returnStdout: true
     ).trim()
 		def lines = git_message.split("\n")
