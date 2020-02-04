@@ -358,7 +358,7 @@ def get_settings(file_path, project = "none") {
 	base_path = "$env.WORKSPACE"
 	echo "BasePath: ${base_path}"
 	println "JSON Settings Document: ${file_path}"
-	def json_file_obj = new File( file_path )
+	def json_file_obj = new java.io.File( file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
