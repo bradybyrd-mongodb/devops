@@ -56,8 +56,8 @@ api_private_key = "" //config["api_private_key"]
 //cluster_add = config["templates"]["cluster_dev"]
 echo "Working with: ${rootJobName}"
 echo "BasePath: ${base_path}"
-env_vars = get_env_vars()
-echo "Env vars:\n${env_vars}"
+//env_vars = get_env_vars()
+//echo "Env vars:\n${env_vars}"
 // note json is not serializable so unset the variable
 config = null
 
@@ -72,13 +72,18 @@ stage('GitParams') {
     echo "#------------------------------------------------------#"
     echo "# Update git repo..."
     echo "# Reset local path - original:"
-    sh "echo %PATH%"
-        echo "# Read latest commit..."
-        sh "git --version"
-        git_message = sh(
-          script: "cd ${base_path} && git log -1 HEAD", // --pretty=format:%s",
-          returnStdout: true
-        ).trim()
+		envs = sh(
+      script: "env",
+      returnStdout: true
+    ).trim()
+		echo "Env Vars:\n${envs}"
+		sh "echo %PATH%"
+    echo "# Read latest commit..."
+    sh "git --version"
+    git_message = sh(
+      script: "cd ${base_path} && git log -1 HEAD", // --pretty=format:%s",
+      returnStdout: true
+    ).trim()
 		def lines = git_message.split("\n")
 		//println "Git lines: ${lines}"
 		lines.each{
