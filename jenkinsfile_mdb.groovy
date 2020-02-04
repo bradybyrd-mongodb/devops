@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 def landscape = "job"
 //def base_path = new File(getClass().protectionDomain.codeSource.location.path).parent
 // Set this variable to point to the folder where your local_settings.json folder
-def base_path = "/mnt/devops"
+def base_path = "$env.WORKSPACE" //"/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
 // #------------------- Change anything below at your own risk -------------------#
@@ -47,7 +47,7 @@ properties([
 ])
 hands_free = false
 config = get_settings("${base_path}/${settings_file}")
-staging_path = config["staging_path"]
+staging_path = base_path //config["staging_path"]
 base_url = config["base_url"]
 project_id = config["project_id"]
 api_public_key = "" //config["api_public_key"]
