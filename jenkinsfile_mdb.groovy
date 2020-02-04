@@ -55,7 +55,9 @@ api_private_key = "" //config["api_private_key"]
 //user_add = config["templates"]["user_add"]
 //cluster_add = config["templates"]["cluster_dev"]
 echo "Working with: ${rootJobName}"
-
+echo "BasePath: ${base_path}"
+env_vars = get_env_vars()
+echo "Env vars:\n${env_vars}"
 // note json is not serializable so unset the variable
 config = null
 
@@ -180,6 +182,14 @@ def not_found(){
 }
 
 //@NonCPS
+def get_env_vars(){
+	srtg = ""
+	env.each{ k,v ->
+		stg += "${k} => ${v}"
+	}
+	return stg
+}
+
 def curl_get(url){
 	def curl = ""
 	withCredentials([usernameColonPassword(credentialsId: 'SA-NE', variable: 'SAcred')]) {
