@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 def landscape = "job"
 //def base_path = new File(getClass().protectionDomain.codeSource.location.path).parent
 // Set this variable to point to the folder where your local_settings.json folder
-def base_path = "$env.WORKSPACE" //"/mnt/devops"
+def base_path = "" //"/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
 // #------------------- Change anything below at your own risk -------------------#
@@ -46,20 +46,13 @@ properties([
 	])
 ])
 hands_free = false
-config = get_settings("${base_path}/${settings_file}")
-staging_path = base_path //config["staging_path"]
-base_url = config["base_url"]
-project_id = config["project_id"]
+staging_path = "" //base_path //config["staging_path"]
+base_url = "" //config["base_url"]
+project_id = "" //config["project_id"]
 api_public_key = "" //config["api_public_key"]
 api_private_key = "" //config["api_private_key"]
-//user_add = config["templates"]["user_add"]
-//cluster_add = config["templates"]["cluster_dev"]
 echo "Working with: ${rootJobName}"
-echo "BasePath: ${base_path}"
-//env_vars = get_env_vars()
-//echo "Env vars:\n${env_vars}"
 // note json is not serializable so unset the variable
-config = null
 
 /*
 #-----------------------------------------------#
@@ -67,7 +60,10 @@ config = null
 */
 stage('GitParams') {
   node (cur_node) {
-    echo '#---------------------- Summary ----------------------#'
+		base_path = "$env.WORKSPACE"
+		echo "BasePath: ${base_path}"
+		get_settings("${base_path}/${settings_file}")
+		echo '#---------------------- Summary ----------------------#'
     echo "#  Validating Git Commit"
     echo "#------------------------------------------------------#"
     echo "# Update git repo..."
@@ -362,6 +358,9 @@ def get_settings(file_path, project = "none") {
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
+	staging_path = base_path //settings["staging_path"]
+	base_url = settings["base_url"]
+	project_id = settings["project_id"]
 	return settings
 }
 
