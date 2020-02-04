@@ -90,19 +90,20 @@ stage('GitParams') {
 			}
 		}
 		echo "# From Git: ${git_message}\n# Revision: ${commit}"
+		if(git_message.contains(keyword_to_deploy)){
+			target_file = process_git_commit()
+			if(target_file == ""){
+				echo "No .json instructions file in commit"
+				currentBuild.result = "UNSTABLE"
+			}else{
+				hands_free = true
+				echo "Performing Instructions from ${target_file}"
+			}
+		}
   }
 }
 
-if(git_message.contains(keyword_to_deploy)){
-	target_file = process_git_commit()
-	if(target_file == ""){
-		echo "No .json instructions file in commit"
-		currentBuild.result = "UNSTABLE"
-	}else{
-		hands_free = true
-		echo "Performing Instructions from ${target_file}"
-	}
-}
+
 if(hands_free){
 	def inc = 0
 	instructions = get_instructions(target_file)
