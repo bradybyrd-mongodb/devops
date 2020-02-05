@@ -67,7 +67,8 @@ stage('GitParams') {
 		echo '#---------------------- Summary ----------------------#'
     echo "#  Validating Git Commit"
     echo "#------------------------------------------------------#"
-    echo "# Update git repo..."
+		/*
+		echo "# Update git repo..."
     echo "# Reset local path - original:"
 		envs = sh(
       script: "env",
@@ -75,7 +76,8 @@ stage('GitParams') {
     ).trim()
 		echo "Env Vars:\n${envs}"
 		sh "echo %PATH%"
-    echo "# Read latest commit..."
+    */
+		echo "# Read latest commit..."
     sh "git --version"
     git_message = sh(
       script: "cd ${staging_path} && git log -1 HEAD", // --pretty=format:%s",
