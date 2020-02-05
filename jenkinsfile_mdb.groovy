@@ -66,6 +66,9 @@ echo "Working with: ${rootJobName} in branch: ${branch}"
 stage('GitParams') {
   node (cur_node) {
 		get_settings(settings_file)
+		if(project_id == ""){
+			echo "Failed to read settings file ${base_path}/${settings_file}"
+		}
 		echo '#---------------------- Summary ----------------------#'
     echo "#  Validating Git Commit"
     echo "#------------------------------------------------------#"
@@ -419,6 +422,8 @@ def get_settings(file_path, project = "none") {
 	def json_file_obj = new java.io.File( "${staging_path}", file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
+	}else{
+		echo "Settings file not found: ${staging_path}/${file_path}"
 	}
 	base_url = settings["base_url"]
 	project_id = settings["project_id"]

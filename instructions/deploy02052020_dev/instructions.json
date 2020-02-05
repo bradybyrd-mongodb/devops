@@ -1,23 +1,13 @@
 {
   "instructions" : "Provisioning script, break into steps",
-  "version" : "1.0z",
-  "title" : "Basic Provisioning",
+  "version" : "1.0a",
+  "title" : "Instructions Test",
   "instructions-steps" : "Enter a step for each action in the pipeline",
   "steps" : [
     {
       "name" : "1) View existing clusters",
-      "action" : "atlas_cluster_info",
+      "action" : "atlas_user_info",
       "template" : ""
-    },
-    {
-      "name" : "2) Create db user",
-      "action" : "atlas_user_add",
-      "template" : "instructions/deploy02042020/user_add_02012020.json"
-    },
-    {
-      "name" : "3) Create new M10 cluster",
-      "action" : "atlas_cluster_add",
-      "template" : "instructions/deploy02042020/cluster_02012020.json"
     }
   ]
 
