@@ -78,7 +78,7 @@ stage('GitParams') {
     echo "# Read latest commit..."
     sh "git --version"
     git_message = sh(
-      script: "cd ${base_path}${git_suffix} && git log -1 HEAD", // --pretty=format:%s",
+      script: "cd ${staging_path} && git log -1 HEAD", // --pretty=format:%s",
       returnStdout: true
     ).trim()
 		def lines = git_message.split("\n")
@@ -187,6 +187,9 @@ def perform_action(action){
 		case "atlas_cluster_info":
 			atlas_cluster_info()
 			break
+		case "atlas_user_info":
+			atlas_user_info()
+			break
 		case "atlas_user_add":
 			atlas_user_add(action["template"])
 			break
@@ -245,6 +248,11 @@ def atlas_cluster_info(args = [:]){
     def result = curl_get(url)
 }
 
+def atlas_user_info(args = [:]){
+    def url = base_url + "/groups/${project_id}/databaseUsers?pretty=true"
+    def result = curl_get(url)
+}
+
 def atlas_user_add(template = ""){
 		if( template == ""){
 			template = env.TemplateFile
@@ -266,7 +274,7 @@ def atlas_cluster_add(passed_args = [:]){
 def process_git_commit() {
   //Pick new files in commit
   // git diff-tree --no-commit-id --name-only -r 32b0f0dd6e4bd810f3edc4bcd8a114f8f98a65ea
-  cmd = "cd ${base_path}${git_suffix} && git diff-tree --no-commit-id --name-only -r ${commit}"
+  cmd = "cd ${staging_path} && git diff-tree --no-commit-id --name-only -r ${commit}"
 	def target_path = ""
 	def raw = sh(
 		script: cmd,
@@ -276,7 +284,7 @@ def process_git_commit() {
   echo "Git new files: ${files}"
   def copy_files = []
   files.each{
-    fil = new File("${staging_path}${git_suffix}${sep}${it}")
+    fil = new File("${staging_path}${sep}${it}")
     if(fil.getName().toLowerCase() == "instructions.json") {
       echo "Match - ${fil.getName()}"
       copy_files << fil
@@ -377,12 +385,12 @@ def get_settings(file_path, project = "none") {
 	def settings = [:]
 	base_path = "$env.WORKSPACE"
 	echo "BasePath: ${base_path}"
+	staging_path = "${base_path}${git_suffix}" //settings["staging_path"]
 	println "JSON Settings Document: ${file_path}"
-	def json_file_obj = new java.io.File( "${base_path}${git_suffix}", file_path )
+	def json_file_obj = new java.io.File( "${staging_path}", file_path )
 	if (json_file_obj.exists() ) {
 	  settings = jsonSlurper.parseText(json_file_obj.text)
 	}
-	staging_path = base_path //settings["staging_path"]
 	base_url = settings["base_url"]
 	project_id = settings["project_id"]
 	return settings
@@ -393,8 +401,6 @@ def get_instructions(file_path){
 	def jsonSlurper = new JsonSlurper()
 	def tmp_config = [:]
 	def json_file_obj = file_path
-	//def json_file_obj = new java.io.File( "${base_path}${git_suffix}${sep}instructions", "simple_provision.json" )
-	//def json_file_obj = new File( file_path )
 	if (json_file_obj.exists() ) {
 	  tmp_config = jsonSlurper.parseText(json_file_obj.text)
 	}
