@@ -6,7 +6,7 @@
     "providerName" : "AWS",
     "regionName" : "US_EAST_1",
     "instanceSizeName" : "M10",
-    "diskIOPS" : 120,
+    "diskIOPS" : 300,
     "encryptEBSVolume" : false
   },
   "diskSizeGB" : 100,
