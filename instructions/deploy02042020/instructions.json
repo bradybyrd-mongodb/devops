@@ -12,12 +12,12 @@
     {
       "name" : "2) Create db user",
       "action" : "atlas_user_add",
-      "template" : "instructions/user_add_02012020.json"
+      "template" : "instructions/deploy02042020/user_add_02012020.json"
     },
     {
       "name" : "3) Create new M10 cluster",
       "action" : "atlas_cluster_add",
-      "template" : "instructions/cluster_02012020.json"
+      "template" : "instructions/deploy02042020/cluster_02012020.json"
     }
   ]
 

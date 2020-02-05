@@ -93,7 +93,7 @@ stage('GitParams') {
 		if(git_message.contains(keyword_to_deploy)){
 			target_file = process_git_commit()
 			if(target_file == ""){
-				echo "No .json instructions file in commit"
+				echo "No instructions.json file in commit"
 				currentBuild.result = "UNSTABLE"
 			}else{
 				hands_free = true
@@ -257,7 +257,7 @@ def process_git_commit() {
   def copy_files = []
   files.each{
     fil = new File("${staging_path}${git_suffix}${sep}${it}")
-    if(fil.getName().endsWith(".json")) {
+    if(fil.getName().toLowerCase() == "instructions.json") {
       echo "Match - ${fil.getName()}"
       copy_files << fil
     }
