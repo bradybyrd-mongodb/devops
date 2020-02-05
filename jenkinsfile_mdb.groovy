@@ -110,65 +110,85 @@ if(hands_free){
 	echo "#------------------- ${instructions["title"]} -------------------------#"
 	//  Note - loops are no serializable in pipeline
 	def num_items = instructions["actions"].size()
-	def stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 1
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 2
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 3
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 4
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 5
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 6
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 7
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 8
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 	inc = 9
-	stage_name = instructions["actions"][inc]["name"]
-	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+	if(num_items > inc){
+		def stage_name = instructions["actions"][inc]["name"]
+		stage(stage_name) { node(cur_node) {
 		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
-	}}}
+		}}
+	}
 
 }else{
 	echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
