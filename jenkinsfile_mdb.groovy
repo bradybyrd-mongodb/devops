@@ -152,12 +152,12 @@ if(hands_free){
 
 }else{
 	echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
-	perform_action(env.AtlasAction)
+	perform_action({"action" : env.AtlasAction, "template" : ""})
 }
 
 
 def perform_action(action){
-	switch (action["name"]){
+	switch (action["action"]){
 		case "config_test":
 			config_test()
 			break
@@ -171,16 +171,16 @@ def perform_action(action){
 			atlas_user_add(action["template"])
 			break
 		case "atlas_cluster_add":
-			atlas_cluster_add(actin["template"])
+			atlas_cluster_add(action["template"])
 			break
 		default:
-			not_found()
+			not_found(action["action"])
 			break
 	}
 }
 
-def not_found(){
-    echo "${env.AtlasAction} action not found"
+def not_found(item){
+    echo "${item} action not found"
     currentBuild.result = "UNSTABLE"
 }
 
