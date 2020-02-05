@@ -10,11 +10,11 @@ import java.text.SimpleDateFormat
 def landscape = "job"
 //def base_path = new File(getClass().protectionDomain.codeSource.location.path).parent
 // Set this variable to point to the folder where your local_settings.json folder
-base_path = "" //"/mnt/devops"
+base_path = "/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
 // Jenkins git checkouts get a suffix on the path that is different from workspace
-git_suffix = "@script"
+git_suffix = "" //"@script"
 
 // #------------------- Change anything below at your own risk -------------------#
 // #---- (but please take the time to understand what is going on in the code here ;-> ) ---#
@@ -32,7 +32,7 @@ def config = [:]
 // Settings
 def git_message = ""
 // message looks like this "Adding new tables [Version: V2.3.4] "
-def reg = ~/.*\[Version: (.*)\].*/
+def reg = /^.*\//
 def keyword_to_deploy = "#DBDEPLOY"
 def approver = ""
 def cur_node = ""
@@ -40,6 +40,7 @@ def result = ""
 def buildNumber = "$env.BUILD_NUMBER"
 
 // Add a properties for Platform and Skip_Packaging
+/*
 properties([
 	parameters([
 		//choice(name: 'Landscape', description: "Develop/Release to specify deployment target", choices: 'MP_Dev\nMP_Dev2,MP_Release'),
@@ -48,14 +49,15 @@ properties([
 		string(name: 'RestParameters', description: "Enter overrides to json settings file (username=brady collection=movies)", defaultValue: "username=brady role=readAnyDatabase")
 	])
 ])
+*/
 hands_free = false
 staging_path = "" //base_path //config["staging_path"]
 base_url = "" //config["base_url"]
 project_id = "" //config["project_id"]
 api_public_key = "" //config["api_public_key"]
 api_private_key = "" //config["api_private_key"]
-echo "Working with: ${rootJobName}"
-// note json is not serializable so unset the variable
+branch = rootJobName.replaceAll(reg,"")
+echo "Working with: ${rootJobName} in branch: ${branch}"
 
 /*
 #-----------------------------------------------#
@@ -405,7 +407,9 @@ def ensure_dir(pth){
 def get_settings(file_path, project = "none") {
 	def jsonSlurper = new JsonSlurper()
 	def settings = [:]
-	base_path = "$env.WORKSPACE"
+	if(base_path == ""){
+		base_path = "$env.WORKSPACE"
+	}
 	echo "BasePath: ${base_path}"
 	staging_path = "${base_path}${git_suffix}" //settings["staging_path"]
 	println "JSON Settings Document: ${file_path}"
