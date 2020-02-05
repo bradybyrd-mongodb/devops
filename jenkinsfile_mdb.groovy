@@ -10,11 +10,11 @@ import java.text.SimpleDateFormat
 def landscape = "job"
 //def base_path = new File(getClass().protectionDomain.codeSource.location.path).parent
 // Set this variable to point to the folder where your local_settings.json folder
-base_path = "/mnt/devops"
+base_path = "" //"/mnt/devops"
 // Change this if you want to point to a different local settings file
 def settings_file = "mdb_config.json"
 // Jenkins git checkouts get a suffix on the path that is different from workspace
-git_suffix = "" //"@script"
+git_suffix = "/repo" //"@script"
 
 // #------------------- Change anything below at your own risk -------------------#
 // #---- (but please take the time to understand what is going on in the code here ;-> ) ---#
@@ -70,8 +70,7 @@ stage('GitParams') {
     echo "#  Validating Git Commit"
     echo "#------------------------------------------------------#"
 		/*
-		echo "# Update git repo..."
-    echo "# Reset local path - original:"
+		echo "# Reset local path - original:"
 		envs = sh(
       script: "env",
       returnStdout: true
@@ -79,7 +78,11 @@ stage('GitParams') {
 		echo "Env Vars:\n${envs}"
 		sh "echo %PATH%"
     */
-		echo "# Read latest commit..."
+		echo "# Update git repo..."
+		dir(staging_path) {
+    	checkout scm
+		}
+    echo "# Read latest commit..."
     sh "git --version"
     git_message = sh(
       script: "cd ${staging_path} && git log -1 HEAD", // --pretty=format:%s",

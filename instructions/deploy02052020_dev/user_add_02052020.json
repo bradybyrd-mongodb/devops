@@ -1,0 +1,8 @@
+{
+  "databaseName" : "admin",
+  "roles" : [
+    {"databaseName" : "admin", "roleName" : "readWriteAnyDatabase"}
+  ],
+  "username" : "BradyB",
+  "password" : "bugsyBoo"
+}
