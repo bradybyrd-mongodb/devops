@@ -1,6 +1,6 @@
 {
   "instructions" : "Provisioning script, break into steps",
-  "version" : "1.0s",
+  "version" : "1.0t",
   "title" : "Basic Provisioning",
   "instructions-steps" : "Enter a step for each action in the pipeline",
   "steps" : [

@@ -152,7 +152,7 @@ if(hands_free){
 
 }else{
 	echo "#------------------- Sending Atlas Command ${env.AtlasAction} ---------#"
-	perform_action({"action" : env.AtlasAction, "template" : ""})
+	perform_action(["action" : env.AtlasAction, "template" : ""])
 }
 
 
