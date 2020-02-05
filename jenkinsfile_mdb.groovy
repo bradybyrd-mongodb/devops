@@ -110,43 +110,63 @@ if(hands_free){
 	echo "#------------------- ${instructions["title"]} -------------------------#"
 	//  Note - loops are no serializable in pipeline
 	def num_items = instructions["actions"].size()
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	def stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 1
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 2
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 3
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 4
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 5
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 6
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 7
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 8
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 	inc = 9
-	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
+	stage_name = instructions["actions"][inc]["name"]
+	if(num_items > inc){ stage(stage_name) { node(cur_node) {
+		echo "#------------------- ${stage_name} -------------------------#"
 		perform_action(instructions["actions"][inc])
 	}}}
 
