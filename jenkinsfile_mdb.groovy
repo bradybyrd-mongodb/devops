@@ -109,7 +109,7 @@ if(hands_free){
 	instructions = get_instructions(target_file)
 	echo "#------------------- ${instructions["title"]} -------------------------#"
 	//  Note - loops are no serializable in pipeline
-	def num_Items = instructions["actions"].size()
+	def num_items = instructions["actions"].size()
 	if(num_items > inc){ stage(instructions["actions"][inc]["name"]) { node(cur_node) {
 		perform_action(instructions["actions"][inc])
 	}}}
