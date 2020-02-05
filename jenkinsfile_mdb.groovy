@@ -262,7 +262,7 @@ def atlas_user_add(template = ""){
     def result = curl_post(url, new_file)
 }
 
-def atlas_cluster_add(passed_args = [:]){
+def atlas_cluster_add(template = ""){
 		if( template == ""){
 			template = env.TemplateFile
 		}
