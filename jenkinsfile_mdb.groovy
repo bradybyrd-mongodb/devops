@@ -301,6 +301,14 @@ def atlas_cluster_add(template = ""){
     def result = curl_post(url, new_file)
 }
 
+def mongo_import_data(template = ""){
+		if( template == ""){
+			template = env.TemplateFile
+		}
+		def new_file = "${staging_path}${sep}${template}"
+		def result = mongo_import(new_file)
+}
+
 def process_git_commit() {
   //Pick new files in commit
   // git diff-tree --no-commit-id --name-only -r 32b0f0dd6e4bd810f3edc4bcd8a114f8f98a65ea
