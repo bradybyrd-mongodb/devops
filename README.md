@@ -10,6 +10,8 @@ The code here is built around Jenkins groovy pipeline operation.  Everything is 
 
 For each action there may be an accompanying json template to provide further details to the rest call.
 
+Put your atlas account information in the mdb_config.json file.
+
 __Operation__
 #### Two modes of operation:
   Interactive: enter arguments right in the job
