@@ -1,0 +1,17 @@
+- stage: deploy
+  jobs:
+  - deployment: DeployDB
+    displayName: deploy Atlas
+    pool:
+      vmImage: 'Ubuntu-latest'
+    # creates an environment if it doesn't exist
+    environment: 'INT'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              echo Deploying Atlas via API
+              cd /home/main-admin/devops
+              python3.7 atlas_rest.py action=cluster_info
+            displayName: Atlas cluster info
